@@ -11,6 +11,7 @@ export interface Modulo {
   precio: number;
   profesor_id?: number | null;
   activo?: number;
+  fecha_creacion?: string;
 }
 
 export interface ModuloConProfesor extends Modulo {
@@ -32,6 +33,10 @@ export async function obtenerModulos(): Promise<ModuloConProfesor[]> {
 
 export async function crearModulo(mod: Omit<Modulo, "id" | "fecha_registro">) {
     const conn = await getConnection();
+
+    const existe = await conn.select<{ id: number }[]>(`SELECT id FROM modulos WHERE codigo = ?`, [mod.codigo]);
+    if (existe.length > 0) { throw new Error("Ya existe un módulo con este código")}
+
     await conn.execute(
     `INSERT INTO modulos 
     (codigo, nombre, descripcion, duracion, horas_teoricas, horas_practicas, precio, profesor_id)
