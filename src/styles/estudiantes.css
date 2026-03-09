@@ -1,0 +1,273 @@
+/* ── Estudiantes.css ── */
+
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 900;
+  color: #0f172a;
+  letter-spacing: -0.5px;
+}
+
+.page-subtitle {
+  font-size: 15px;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #1152d4;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(17, 82, 212, 0.25);
+  transition: background 0.2s, transform 0.1s;
+}
+
+.btn-primary:hover   { background-color: #0e44b8; }
+.btn-primary:active  { transform: scale(0.97); }
+
+/* ── FILTERS ── */
+.filters-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.filter-search-wrapper {
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+}
+
+.filter-search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.filter-search-input {
+  width: 100%;
+  height: 42px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 0 12px 0 38px;
+  font-size: 14px;
+  color: #0f172a;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.filter-search-input:focus {
+  border-color: #1152d4;
+  box-shadow: 0 0 0 3px rgba(17, 82, 212, 0.12);
+}
+
+.filter-select {
+  height: 42px;
+  min-width: 140px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 0 12px;
+  font-size: 14px;
+  color: #0f172a;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.filter-select:focus {
+  border-color: #1152d4;
+}
+
+/* ── TABLE ── */
+.table-container {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+thead tr {
+  background-color: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+thead th {
+  padding: 14px 24px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+}
+
+thead th.center { text-align: center; }
+thead th.right  { text-align: right;  }
+
+tbody tr {
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.15s;
+}
+
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover      { background-color: #f8fafc; }
+
+tbody td {
+  padding: 14px 24px;
+  font-size: 14px;
+  color: #475569;
+}
+
+.td-id    { font-weight: 500; color: #94a3b8; }
+.td-center { text-align: center; }
+.td-right  { text-align: right; gap: 10px; display: flex; justify-content: flex-end; }
+
+/* Student cell */
+.student-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.avatar-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.avatar-blue   { background-color: rgba(17,82,212,0.1); color: #1152d4; }
+.avatar-gray   { background-color: #e2e8f0;             color: #64748b; }
+.avatar-amber  { background-color: #fef3c7;             color: #d97706; }
+
+.student-name  { font-size: 14px; font-weight: 600; color: #0f172a; }
+
+/* Career cell */
+.career-name   { font-size: 14px; font-weight: 500; color: #334155; }
+.career-sem    { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+
+/* Status badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-active   { background: #d1fae5; color: #065f46; }
+.badge-inactive { background: #f1f5f9; color: #475569; }
+.badge-pending  { background: #fef3c7; color: #92400e; }
+
+/* Edit button */
+.btn-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn-action.edit:hover   { background: rgba(17,82,212,0.1); color: #1152d4; }
+.btn-action.addModule:hover { background: rgba(6, 95, 70, 0.1); color: #065f46; }
+.btn-action.delete:hover   { background: #fee2e2; color: #dc2626; }
+
+/* ── PAGINATION ── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+}
+
+.pagination-info {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.pagination-info span { font-weight: 600; color: #0f172a; }
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.page-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.page-btn:hover   { background: #e2e8f0; }
+.page-btn.current { background: #1152d4; color: #ffffff; font-weight: 700; box-shadow: 0 2px 6px rgba(17,82,212,0.3); }
+.page-btn.arrow   { color: #94a3b8; }
+
+.page-dots { padding: 0 6px; color: #94a3b8; font-size: 14px; }
+
+.btn-action:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}

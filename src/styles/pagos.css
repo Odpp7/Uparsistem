@@ -1,0 +1,394 @@
+/* Reportes.css */
+
+/* PAGE HEADER */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 900;
+  color: #0f172a;
+  letter-spacing: -0.5px;
+}
+
+.page-subtitle {
+  font-size: 15px;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #1152d4;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(17, 82, 212, 0.25);
+  transition: background 0.2s, transform 0.1s;
+}
+
+.btn-primary:hover  { background-color: #0e44b8; }
+.btn-primary:active { transform: scale(0.97); }
+
+/* SEARCH */
+.search-big {
+  position: relative;
+  max-width: 680px;
+  margin-bottom: 32px;
+}
+
+.search-big-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.search-big-input {
+  width: 100%;
+  height: 56px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 0 16px 0 52px;
+  font-size: 15px;
+  color: #0f172a;
+  outline: none;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-big-input::placeholder { color: #94a3b8; }
+.search-big-input:focus {
+  border-color: #1152d4;
+  box-shadow: 0 0 0 3px rgba(17,82,212,0.12);
+}
+
+/* STAT CARDS */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+@media (max-width: 768px) {
+  .stats-grid { grid-template-columns: 1fr; }
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.stat-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+}
+
+.stat-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-icon-blue   { color: #1152d4; }
+.stat-icon-green  { color: #10b981; }
+.stat-icon-amber  { color: #f59e0b; }
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.1;
+}
+
+/* MAIN GRID */
+.main-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 32px;
+}
+
+@media (max-width: 1024px) {
+  .main-grid { grid-template-columns: 1fr; }
+}
+
+/* SECTION TITLES */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.section-link {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1152d4;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.section-link:hover { text-decoration: underline; }
+
+/* TRANSACTIONS TABLE */
+.table-container {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.table-scroll { overflow-x: auto; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 14px;
+}
+
+thead tr {
+  background-color: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+thead th {
+  padding: 14px 24px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+}
+
+tbody tr {
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.15s;
+}
+
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover      { background: #f8fafc; }
+
+tbody td { padding: 14px 24px; color: #475569; }
+
+.td-date     { color: #64748b; }
+.td-concept  { font-weight: 500; color: #0f172a; }
+.td-amount   { font-weight: 700; color: #0f172a; }
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-done     { background: #d1fae5; color: #065f46; }
+.badge-pending  { background: #fef3c7; color: #92400e; }
+.badge-canceled { background: #ffe4e6; color: #9f1239; }
+
+/* MODULES CARD */
+.modules-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.module-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.module-item:last-of-type {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.module-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.mod-blue   { background: rgba(17,82,212,0.1);  color: #1152d4; }
+.mod-green  { background: rgba(16,185,129,0.1); color: #10b981; }
+.mod-amber  { background: rgba(245,158,11,0.1); color: #f59e0b; }
+.mod-gray   { background: #f1f5f9;              color: #64748b; }
+
+.module-info { flex: 1; }
+.module-name { font-size: 14px; font-weight: 700; color: #0f172a; }
+.module-sub  { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+
+/* Progress bar */
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: #f1f5f9;
+  border-radius: 999px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: #1152d4;
+}
+
+.module-check { color: #10b981; flex-shrink: 0; margin-top: 2px; }
+
+/* Inscribir btn */
+.btn-outline {
+  display: block;
+  width: 100%;
+  margin-top: 16px;
+  padding: 10px;
+  border: 1.5px solid #1152d4;
+  border-radius: 8px;
+  background: none;
+  color: #1152d4;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+  text-align: center;
+}
+
+.btn-outline:hover { background: rgba(17,82,212,0.05); }
+
+/* Empty state */
+.pagos-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 80px 20px;
+  text-align: center;
+}
+.pagos-empty-icon  { color: #cbd5e1; }
+.pagos-empty-title { font-size: 18px; font-weight: 700; color: #1e293b; }
+.pagos-empty-sub   { font-size: 14px; color: #94a3b8; max-width: 420px; }
+
+/* Chip estudiante seleccionado */
+.estudiante-seleccionado {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 24px;
+}
+.est-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #1152d4;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.est-nombre { font-size: 15px; font-weight: 700; color: #1e293b; }
+.est-meta   { font-size: 12px; color: #64748b; margin-top: 2px; }
+
+/* Stat sub-label */
+.stat-sub { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+.stat-icon-red { color: #dc2626; }
+
+/* Badge en módulos */
+.badge-modulo-estado {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Dropdown (si no está ya en modalPagos.css, agrégalo aquí también) */
+.search-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+  z-index: 100;
+  overflow: hidden;
+}
+.search-dropdown-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+.search-dropdown-item:hover { background: #f1f5f9; }
+.dropdown-name  { font-size: 13px; font-weight: 600; color: #1e293b; }
+.dropdown-meta  { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+.dropdown-empty { padding: 12px 14px; font-size: 13px; color: #94a3b8; }

@@ -1,0 +1,82 @@
+import { getConnection } from "../database/connection";
+
+export interface Modulo {
+  id?: number;
+  codigo: string;
+  nombre: string;
+  descripcion?: string;
+  duracion?: string;
+  horas_teoricas?: number;
+  horas_practicas?: number;
+  precio: number;
+  profesor_id?: number | null;
+  activo?: number;
+}
+
+export interface ModuloConProfesor extends Modulo {
+  profesor_nombre?: string;
+}
+
+
+export async function obtenerModulos(): Promise<ModuloConProfesor[]> {
+    const conn = await getConnection();
+    return await conn.select(`
+    SELECT 
+      m.*, 
+      p.nombre_completo as profesor_nombre
+    FROM modulos m
+    LEFT JOIN profesores p ON m.profesor_id = p.id
+    ORDER BY m.id DESC
+  `);
+}
+
+export async function crearModulo(mod: Omit<Modulo, "id" | "fecha_registro">) {
+    const conn = await getConnection();
+    await conn.execute(
+    `INSERT INTO modulos 
+    (codigo, nombre, descripcion, duracion, horas_teoricas, horas_practicas, precio, profesor_id)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      mod.codigo,
+      mod.nombre,
+      mod.descripcion || "",
+      mod.duracion || "",
+      mod.horas_teoricas || 0,
+      mod.horas_practicas || 0,
+      mod.precio,
+      mod.profesor_id || null,
+    ]
+  );
+}
+
+export async function actualizarModulo(id: number, mod: Partial<Omit<Modulo, "id" | "fecha_registro">>) {
+    const conn = await getConnection();
+    await conn.execute(
+    `UPDATE modulos SET
+      codigo = ?,
+      nombre = ?,
+      descripcion = ?,
+      duracion = ?,
+      horas_teoricas = ?,
+      horas_practicas = ?,
+      precio = ?,
+      profesor_id = ?
+     WHERE id = ?`,
+    [
+      mod.codigo,
+      mod.nombre,
+      mod.descripcion,
+      mod.duracion,
+      mod.horas_teoricas,
+      mod.horas_practicas,
+      mod.precio,
+      mod.profesor_id,
+      id
+    ]
+  );
+}
+
+export async function eliminarModulo(id: number) {
+    const conn = await getConnection();
+    await conn.execute("DELETE FROM modulos WHERE id = ?", [id]);
+}
