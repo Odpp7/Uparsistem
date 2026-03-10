@@ -43,8 +43,7 @@ export default function Profesores() {
 
   const profesoresFiltrados = profesores.filter((p) => {
     const conincideBusqueda = p.nombre_completo.toLowerCase().includes(busqueda.toLowerCase()) ||
-      p.cedula.includes(busqueda) ||
-      (p.especialidad && p.especialidad.toLowerCase().includes(busqueda.toLowerCase()));
+      p.cedula.includes(busqueda)
     return conincideBusqueda;
   });
 
@@ -65,14 +64,11 @@ export default function Profesores() {
         <div className="search-bar-icon"><Search size={18} /></div>
         <input
           className="search-bar-input"
-          placeholder="Buscar profesor por nombre, ID o departamento..."
+          placeholder="Buscar profesor por nombre, ID..."
           type="text"
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
         />
-        <button className="search-bar-filter">
-          <SlidersHorizontal size={18} />
-        </button>
       </div>
 
       <div className="table-container">
