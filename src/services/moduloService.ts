@@ -83,5 +83,5 @@ export async function actualizarModulo(id: number, mod: Partial<Omit<Modulo, "id
 
 export async function eliminarModulo(id: number) {
     const conn = await getConnection();
-    await conn.execute("DELETE FROM modulos WHERE id = ?", [id]);
+    await conn.execute("UPDATE modulos SET activo = 0 WHERE id = ?", [id]);
 }
