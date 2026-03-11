@@ -8,19 +8,18 @@ import '../../styles/modalPagos.css';
 interface Props {
   onClose: () => void;
   onPagoRegistrado?: () => void;
+  estudiante: Estudiante;
 }
 
 export default function ModalPago({ onClose, onPagoRegistrado }: Props) {
   // Búsqueda de estudiante
   const [query, setQuery]               = useState("");
   const [resultados, setResultados]     = useState<Estudiante[]>([]);
-  const [buscando, setBuscando]         = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
 
   // Estudiante seleccionado
   const [estudiante, setEstudiante]   = useState<Estudiante | null>(null);
   const [cartera, setCartera]         = useState<CarteraEstudiante | null>(null);
-  const [cargandoCartera, setCargandoCartera] = useState(false);
 
   // Formulario de pago
   const [monto, setMonto]           = useState("");
@@ -37,13 +36,14 @@ export default function ModalPago({ onClose, onPagoRegistrado }: Props) {
   useEffect(() => {
     if (query.trim().length < 2) { setResultados([]); setShowDropdown(false); return; }
     const t = setTimeout(async () => {
-      setBuscando(true);
       try {
         const data = await buscarEstudiantes(query);
         setResultados(data);
         setShowDropdown(true);
-      } finally {
-        setBuscando(false);
+      } catch (error) {
+        console.error("Error al buscar estudiantes:", error);
+        setResultados([]);
+        setShowDropdown(false);
       }
     }, 300);
     return () => clearTimeout(t);
@@ -58,7 +58,6 @@ export default function ModalPago({ onClose, onPagoRegistrado }: Props) {
     setDescuento("");
     setError(null);
 
-    setCargandoCartera(true);
     try {
       const c = await obtenerCarteraEstudiante(e.id);
       setCartera(c);
@@ -66,8 +65,9 @@ export default function ModalPago({ onClose, onPagoRegistrado }: Props) {
       setMonto(c.totalDeuda.toFixed(0));
       console.log("Estudiante seleccionado:", e.id);
 
-    } finally {
-      setCargandoCartera(false);
+    } catch (error) {
+      console.error("Error al obtener cartera del estudiante:", error);
+      setCartera(null);
     }
   }
 
@@ -141,7 +141,6 @@ export default function ModalPago({ onClose, onPagoRegistrado }: Props) {
                 onChange={(e) => { setQuery(e.target.value); setEstudiante(null); setCartera(null); }}
                 onFocus={() => resultados.length > 0 && setShowDropdown(true)}
               />
-              {buscando && <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", fontSize: 12, color: "#94a3b8" }}>Buscando...</span>}
             </div>
 
             {/* Dropdown resultados */}
@@ -155,17 +154,14 @@ export default function ModalPago({ onClose, onPagoRegistrado }: Props) {
                 ))}
               </div>
             )}
-            {showDropdown && resultados.length === 0 && !buscando && (
+            {showDropdown && resultados.length === 0 && (
               <div className="search-dropdown">
                 <p className="dropdown-empty">No se encontraron estudiantes.</p>
               </div>
             )}
           </div>
 
-          {/* Si hay estudiante seleccionado */}
-          {cargandoCartera && <p style={{ color: "#94a3b8", fontSize: 13 }}>Cargando cartera...</p>}
-
-          {cartera && !cargandoCartera && (
+          {cartera && (
             <>
               {/* Desglose de módulos */}
               {cartera.lineas.length === 0 ? (
