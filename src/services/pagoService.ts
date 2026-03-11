@@ -8,6 +8,22 @@ export interface RegistrarPagoPayload {
   observaciones?: string;
 }
 
+
+export interface LineaCartera {
+  inscripcionId: number;
+  moduloNombre: string;
+  moduloCodigo: string;
+  precio: number;
+  totalPagado: number;
+  saldoPendiente: number;
+}
+
+export interface CarteraEstudiante {
+  lineas: LineaCartera[];
+  totalDeuda: number;
+  totalPagado: number;
+}
+
 export async function registrarPagoGlobal(payload: RegistrarPagoPayload): Promise<void> {
   const conn = await getConnection();
 
@@ -45,7 +61,7 @@ export async function registrarPagoGlobal(payload: RegistrarPagoPayload): Promis
       [
         insc.inscripcion_id,
         abonar,
-        insc.inscripcion_id === inscripciones[0].inscripcion_id ? payload.descuento : 0, 
+        insc.inscripcion_id === inscripciones[0].inscripcion_id ? payload.descuento : 0,
         payload.metodoPago,
         hoy,
         payload.observaciones ?? "",
@@ -53,4 +69,51 @@ export async function registrarPagoGlobal(payload: RegistrarPagoPayload): Promis
     );
     restante -= abonar;
   }
+}
+
+export async function obtenerCarteraEstudiante(estudianteId: number): Promise<CarteraEstudiante> {
+
+  const conn = await getConnection();
+
+  const rows = await conn.select<{
+    inscripcion_id: number;
+    modulo_nombre: string;
+    modulo_codigo: string;
+    precio: number;
+    total_pagado: number;
+  }[]>(`
+    SELECT
+      i.id AS inscripcion_id,
+      m.nombre AS modulo_nombre,
+      m.codigo AS modulo_codigo,
+      m.precio,
+      COALESCE((
+        SELECT SUM(p.monto_pagado)
+        FROM pagos p
+        WHERE p.inscripcion_id = i.id
+      ), 0) AS total_pagado
+    FROM inscripciones i
+    JOIN modulos m ON i.modulo_id = m.id
+    WHERE i.estudiante_id = ?
+  `, [estudianteId]);
+
+  const lineas = rows.map((row: any) => {
+
+    const saldo = Math.max(0, row.precio - row.total_pagado);
+
+    return {
+      inscripcionId: row.inscripcion_id,
+      moduloNombre: row.modulo_nombre,
+      moduloCodigo: row.modulo_codigo,
+      precio: row.precio,
+      totalPagado: row.total_pagado,
+      saldoPendiente: saldo
+    };
+
+  });
+
+  const totalDeuda = lineas.reduce((acc: number, l: any) => acc + l.saldoPendiente, 0);
+  const totalPagado = lineas.reduce((acc: number, l: any) => acc + l.totalPagado, 0);
+
+  return { lineas, totalDeuda, totalPagado };
 }

@@ -208,7 +208,7 @@ export default function Estudiantes() {
         <ModalAddModulo
           onClose={() => setModalInscripcion(false)}
           estudianteId={estudianteSeleccionado.id}
-          studentName={estudianteSeleccionado.name}
+          nombre={estudianteSeleccionado.name}
           studentMeta={estudianteSeleccionado.meta}
         />
       )}

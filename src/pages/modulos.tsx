@@ -12,7 +12,7 @@ export default function Modulos() {
   const [busqueda, setBusqueda] = useState("");
   const [paginaActual, setPaginaActual] = useState(1);
 
-  const MODULOS_POR_PAGINA = 10;
+  const MODULOS_POR_PAGINA = 6;
 
   async function cargarModulos() {
     try {

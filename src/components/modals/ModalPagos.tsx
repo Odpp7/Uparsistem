@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { X, Search, Wallet, Tag, CreditCard, Landmark, Banknote, CheckCircle, AlertCircle } from "lucide-react";
 import { buscarEstudiantes, Estudiante } from "../../services/estudianteService";
-import { obtenerCarteraEstudiante, CarteraEstudiante } from "../../services/inscripcionService";
+import { obtenerCarteraEstudiante, CarteraEstudiante } from "../../services/pagoService";
 import { registrarPagoGlobal } from "../../services/pagoService";
 import '../../styles/modalPagos.css';
 

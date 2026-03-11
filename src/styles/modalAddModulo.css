@@ -74,15 +74,6 @@
   line-height: 1.2;
 }
 
-.modal-header-period {
-  font-size: 11px;
-  font-weight: 700;
-  color: #94a3b8;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-top: 2px;
-}
-
 .modal-close {
   background: none;
   border: none;
@@ -143,17 +134,6 @@
 
 .student-name { font-size: 17px; font-weight: 700; color: #0f172a; }
 .student-meta { font-size: 13px; color: #64748b; margin-top: 2px; }
-
-.student-status-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 12px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-  background: #d1fae5;
-  color: #065f46;
-}
 
 /* MAIN 2-COL GRID */
 .inscripcion-grid {
@@ -321,7 +301,6 @@
 
 .summary-total-label { font-size: 11px; text-transform: uppercase; font-weight: 700; color: #64748b; }
 .summary-total-amount { font-size: 26px; font-weight: 900; color: #1152d4; }
-.summary-iva { font-size: 11px; color: #94a3b8; font-style: italic; }
 
 /* ENROLLED */
 .enrolled-title {

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { PlusCircle, UserSearch, Clock, CheckCircle2, Tag, Wallet } from "lucide-react";
 import { buscarEstudiantes, Estudiante } from "../services/estudianteService";
-import { obtenerCarteraEstudiante, CarteraEstudiante } from "../services/inscripcionService";
+import { obtenerCarteraEstudiante, CarteraEstudiante } from "../services/pagoService";
 import ModalPago from "../components/modals/ModalPagos";
 import "../styles/pagos.css";
 

@@ -31,6 +31,20 @@ export async function obtenerModulos(): Promise<ModuloConProfesor[]> {
   `);
 }
 
+export async function obtenerModulosActivos(): Promise<Modulo[]> {
+
+  const conn = await getConnection();
+
+  return await conn.select(`
+    SELECT *
+    FROM modulos
+    WHERE activo = 1
+    ORDER BY nombre
+  `);
+
+}
+
+
 export async function crearModulo(mod: Omit<Modulo, "id" | "fecha_registro">) {
     const conn = await getConnection();
 
