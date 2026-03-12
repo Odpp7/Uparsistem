@@ -154,15 +154,21 @@ export default function Pagos() {
 
             <div className="stat-card">
               <div className="stat-card-top">
-                <span className="stat-label">Módulos Inscritos</span>
+                <span className="stat-label">Descuentos Aplicados</span>
                 <span className="stat-icon-wrap stat-icon-amber"><Tag size={22} /></span>
               </div>
-              <p className="stat-value">{cartera.lineas.length}</p>
+
+              <p className="stat-value">
+                ${cartera.lineas
+                  .reduce((acc, l) => acc + (l.precio * (l.descuento / 100)), 0)
+                  .toLocaleString("es-CO")}
+              </p>
+
               <p className="stat-sub">
-                {cartera.lineas.filter(l => l.saldoPendiente === 0).length} pagado(s) •{" "}
-                {cartera.lineas.filter(l => l.saldoPendiente > 0).length} pendiente(s)
+                {cartera.lineas.filter(l => l.descuento > 0).length} módulo(s) con descuento
               </p>
             </div>
+
           </div>
 
 

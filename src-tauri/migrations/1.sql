@@ -54,10 +54,12 @@ CREATE TABLE IF NOT EXISTS inscripciones (
   modulo_id INTEGER NOT NULL,
   fecha_inscripcion DATE NOT NULL,
   estado TEXT DEFAULT 'ACTIVO',
+  descuento REAL DEFAULT 0,
   FOREIGN KEY (estudiante_id) REFERENCES estudiantes(id),
   FOREIGN KEY (modulo_id) REFERENCES modulos(id),
   UNIQUE(estudiante_id, modulo_id)
 );
+
 
 -- ============================================
 -- TABLA: PAGOS
@@ -66,12 +68,13 @@ CREATE TABLE IF NOT EXISTS pagos (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   inscripcion_id INTEGER NOT NULL,
   monto_pagado REAL NOT NULL,
-  descuento REAL DEFAULT 0,
   metodo_pago TEXT,
   fecha_pago DATE NOT NULL,
   observaciones TEXT,
+  estado TEXT DEFAULT 'CONFIRMADO',
   FOREIGN KEY (inscripcion_id) REFERENCES inscripciones(id)
 );
+
 
 -- ============================================
 -- INDICES PARA MEJOR RENDIMIENTO
