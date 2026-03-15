@@ -49,12 +49,15 @@ CREATE TABLE IF NOT EXISTS modulos (
 -- TABLA: INSCRIPCIONES
 -- ============================================
 CREATE TABLE IF NOT EXISTS inscripciones (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id INTEGER PRIMARY KEY AUTOINCREMENT, 
   estudiante_id INTEGER NOT NULL,
   modulo_id INTEGER NOT NULL,
   fecha_inscripcion DATE NOT NULL,
   estado TEXT DEFAULT 'ACTIVO',
   descuento REAL DEFAULT 0,
+  nota REAL,
+  fecha_nota DATETIME,
+  nota_bloqueada INTEGER DEFAULT 0,
   FOREIGN KEY (estudiante_id) REFERENCES estudiantes(id),
   FOREIGN KEY (modulo_id) REFERENCES modulos(id),
   UNIQUE(estudiante_id, modulo_id)
