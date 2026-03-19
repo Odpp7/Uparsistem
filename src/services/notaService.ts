@@ -10,6 +10,7 @@ export interface ModuloNota {
   nota: number | null
   bloqueada: boolean
   estado: string
+  intento: number
 }
 
 
@@ -23,6 +24,7 @@ export async function obtenerModulosEstudiante(estudianteId: number): Promise<Mo
       m.id AS modulo_id,
       m.codigo AS modulo_codigo,
       m.nombre AS modulo_nombre,
+      i.intento,
 
       (m.horas_teoricas + m.horas_practicas) AS horas,
 
@@ -47,6 +49,7 @@ export async function obtenerModulosEstudiante(estudianteId: number): Promise<Mo
     fechaInscripcion: r.fecha_inscripcion,
     nota: r.nota,
     bloqueada: r.nota_bloqueada === 1,
+    intento: r.intento,
     estado: r.estado
   }))
 }
@@ -54,7 +57,6 @@ export async function obtenerModulosEstudiante(estudianteId: number): Promise<Mo
 
 
 export async function guardarNota(inscripcionId: number, nota: number){
-
   const conn = await getConnection()
 
   const fecha = new Date().toISOString().split("T")[0]
@@ -78,13 +80,31 @@ export async function guardarNota(inscripcionId: number, nota: number){
 export async function recursarModulo(estudianteId: number, moduloId: number){
 
   const conn = await getConnection()
-
   const fecha = new Date().toISOString().split("T")[0]
+
+  const result = await conn.select<any[]>(`
+    SELECT MAX(intento) as max_intento
+    FROM inscripciones
+    WHERE estudiante_id = ? AND modulo_id = ?
+  `,[estudianteId, moduloId])
+
+  const intentoActual = result[0]?.max_intento || 0
+
+  await conn.execute(`
+    UPDATE inscripciones
+    SET estado = 'REPROBADO'
+    WHERE estudiante_id = ?
+    AND modulo_id = ?
+    AND intento = ?
+  `,[estudianteId, moduloId, intentoActual])
+
+  const nuevoIntento = intentoActual + 1
 
   await conn.execute(`
     INSERT INTO inscripciones
-    (estudiante_id, modulo_id, fecha_inscripcion, estado)
-    VALUES (?, ?, ?, 'ACTIVO')
-  `,[estudianteId, moduloId, fecha])
-
+    (estudiante_id, modulo_id, intento, fecha_inscripcion, estado)
+    VALUES (?, ?, ?, ?, 'ACTIVO')
+  `,[estudianteId, moduloId, nuevoIntento, fecha])
 }
+
+

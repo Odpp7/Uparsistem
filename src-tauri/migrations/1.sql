@@ -57,11 +57,12 @@ CREATE TABLE IF NOT EXISTS inscripciones (
   descuento REAL DEFAULT 0,
   nota REAL,
   fecha_nota DATETIME,
+  intento INTEGER DEFAULT 1,
   nota_bloqueada INTEGER DEFAULT 0,
   FOREIGN KEY (estudiante_id) REFERENCES estudiantes(id),
-  FOREIGN KEY (modulo_id) REFERENCES modulos(id),
-  UNIQUE(estudiante_id, modulo_id)
+  FOREIGN KEY (modulo_id) REFERENCES modulos(id)
 );
+
 
 
 -- ============================================

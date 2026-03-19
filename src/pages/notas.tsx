@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
     UserSearch, TrendingUp, BarChart2, BadgeCheck, BookMarked, CheckCircle, XCircle, RefreshCw, Download, ArrowLeft,
     Info, AlertTriangle, Save, Lock,
 } from "lucide-react";
 import { buscarEstudiantes, Estudiante } from "../services/estudianteService";
-import { obtenerModulosEstudiante, guardarNota, ModuloNota } from "../services/notaService";
+import { obtenerModulosEstudiante, guardarNota, ModuloNota, recursarModulo } from "../services/notaService";
+import { validarNota } from "../utils/notaValidacion";
 import "../styles/notas.css";
 
 function initials(name: string) {
@@ -54,6 +55,8 @@ export default function Notas() {
         setQuery(s.nombre_completo)
         setDropdown(false)
 
+        localStorage.setItem("estudianteSeleccionado", JSON.stringify(s))
+
         try {
             const data = await obtenerModulosEstudiante(s.id)
             setModulos(data)
@@ -73,11 +76,34 @@ export default function Notas() {
         setDrafts({})
     }
 
+    useEffect(() => {
+        const guardado = localStorage.getItem("estudianteSeleccionado");
+        if (guardado) {
+            const est = JSON.parse(guardado);
+            seleccionar(est);
+        }
+    }, []);
 
 
     async function saveNota(inscripcionId: number) {
         const valor = drafts[inscripcionId]
         const nota = parseFloat(valor)
+
+        const modulo = modulos.find(m => m.inscripcionId === inscripcionId)
+
+        if (!modulo) return
+
+        const error = validarNota({
+            nota,
+            notaActual: modulo.nota,
+            bloqueada: modulo.bloqueada,
+            estado: modulo.estado
+        })
+
+        if (error) {
+            alert(error)
+            return
+        }
 
         try {
             await guardarNota(inscripcionId, nota)
@@ -87,18 +113,26 @@ export default function Notas() {
                 }
                 return m
             })
-
             setModulos(nuevosModulos)
-
             const nuevosDrafts = { ...drafts }
             delete nuevosDrafts[inscripcionId]
             setDrafts(nuevosDrafts)
-
         } catch (error) {
             console.error("Error guardando nota", error)
         }
     }
 
+
+    async function handleRecursar(moduloId: number) {
+        if (!estudiante) return;
+        try {
+            await recursarModulo(estudiante.id, moduloId);
+            const data = await obtenerModulosEstudiante(estudiante.id);
+            setModulos(data);
+        } catch (error) {
+            console.error("Error recursando módulo", error);
+        }
+    }
 
 
     return (
@@ -233,12 +267,10 @@ export default function Notas() {
 
                                                 <td>
                                                     <p className="td-module-name">{m.moduloNombre}</p>
-                                                    <p className="td-module-code">{m.horas} Horas</p>
+                                                    <p className="td-module-code">{m.horas} Horas • Intento {m.intento}</p>
                                                 </td>
 
-                                                <td className="td-date">
-                                                    {m.fechaInscripcion}
-                                                </td>
+                                                <td className="td-date"> {m.fechaInscripcion} </td>
 
                                                 <td>
                                                     {m.bloqueada ? (
@@ -295,7 +327,7 @@ export default function Notas() {
                                                     {m.bloqueada ? (
                                                         failed
                                                             ? (
-                                                                <button className="btn-retake">
+                                                                <button className="btn-retake" onClick={() => handleRecursar(m.moduloId)}>
                                                                     <RefreshCw size={13} /> Recursar
                                                                 </button>
                                                             )

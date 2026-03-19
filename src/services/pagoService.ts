@@ -9,6 +9,8 @@ export interface LineaCartera {
   precioFinal: number
   totalPagado: number
   saldoPendiente: number
+  intento: number
+  estado: string
 }
 
 export interface CarteraEstudiante {
@@ -29,20 +31,37 @@ export async function obtenerCarteraEstudiante(estudianteId: number): Promise<Ca
 
   const conn = await getConnection()
 
-  const rows = await conn.select<any[]>(`
-    SELECT
-      i.id AS inscripcion_id,
-      m.nombre AS modulo_nombre,
-      m.codigo AS modulo_codigo,
-      m.precio,
-      i.descuento,
-      COALESCE(SUM(p.monto_pagado),0) AS pagado
-    FROM inscripciones i
-    JOIN modulos m ON i.modulo_id = m.id
-    LEFT JOIN pagos p ON p.inscripcion_id = i.id AND p.estado = 'CONFIRMADO'
-    WHERE i.estudiante_id = ?
-    GROUP BY i.id
-  `,[estudianteId])
+const rows = await conn.select<any[]>(`
+  SELECT
+    i.id AS inscripcion_id,
+    m.nombre AS modulo_nombre,
+    m.codigo AS modulo_codigo,
+    m.precio,
+    i.descuento,
+    i.intento,
+    i.estado,
+    COALESCE(SUM(p.monto_pagado),0) AS pagado
+  FROM inscripciones i
+  JOIN modulos m ON i.modulo_id = m.id
+  LEFT JOIN pagos p ON p.inscripcion_id = i.id AND p.estado = 'CONFIRMADO'
+  WHERE i.estudiante_id = ?
+  AND i.intento = (
+    SELECT MAX(i2.intento)
+    FROM inscripciones i2
+    WHERE i2.estudiante_id = i.estudiante_id
+    AND i2.modulo_id = i.modulo_id
+  )
+  GROUP BY 
+    i.id,
+    m.nombre,
+    m.codigo,
+    m.precio,
+    i.descuento,
+    i.intento,
+    i.estado
+`, [estudianteId])
+
+
 
 
   const lineas: LineaCartera[] = rows.map(r => {
@@ -59,13 +78,15 @@ export async function obtenerCarteraEstudiante(estudianteId: number): Promise<Ca
       descuento: r.descuento,
       precioFinal,
       totalPagado: r.pagado,
-      saldoPendiente: saldo
+      saldoPendiente: saldo,
+      intento: r.intento,
+      estado: r.estado
     }
   })
 
 
-  const totalDeuda = lineas.reduce((s,l)=> s + l.saldoPendiente,0)
-  const totalPagado = lineas.reduce((s,l)=> s + l.totalPagado,0)
+  const totalDeuda = lineas.reduce((s, l) => s + l.saldoPendiente, 0)
+  const totalPagado = lineas.reduce((s, l) => s + l.totalPagado, 0)
 
   return { lineas, totalDeuda, totalPagado }
 }
@@ -87,7 +108,7 @@ export async function registrarPagoModulo(
     INSERT INTO pagos
     (inscripcion_id, monto_pagado, metodo_pago, fecha_pago, observaciones)
     VALUES (?, ?, ?, ?, ?)
-  `,[ inscripcionId, monto, metodoPago, fecha, observaciones ?? "" ])
+  `, [inscripcionId, monto, metodoPago, fecha, observaciones ?? ""])
 }
 
 
@@ -95,7 +116,7 @@ export async function registrarPagoModulo(
 export async function actualizarDescuento(
   inscripcionId: number,
   descuento: number
-){
+) {
 
   const conn = await getConnection()
 
@@ -103,7 +124,7 @@ export async function actualizarDescuento(
     UPDATE inscripciones
     SET descuento = ?
     WHERE id = ?
-  `,[descuento, inscripcionId])
+  `, [descuento, inscripcionId])
 
 }
 
@@ -114,23 +135,25 @@ export async function obtenerPagosRecientes(estudianteId: number): Promise<PagoR
   const conn = await getConnection()
 
   const rows = await conn.select<any[]>(`
-    SELECT 
-      p.fecha_pago,
-      m.nombre AS modulo_nombre,
-      p.monto_pagado,
-      p.metodo_pago
+  SELECT 
+    p.fecha_pago,
+    m.nombre AS modulo_nombre,
+    i.intento,
+    p.monto_pagado,
+    p.metodo_pago
     FROM pagos p
     JOIN inscripciones i ON p.inscripcion_id = i.id
     JOIN modulos m ON i.modulo_id = m.id
     WHERE i.estudiante_id = ?
     ORDER BY p.fecha_pago DESC
     LIMIT 10
-  `,[estudianteId])
+  `, [estudianteId])
 
   return rows.map(r => ({
     fecha: r.fecha_pago,
-    concepto: r.modulo_nombre,
+    concepto: `${r.modulo_nombre} (Intento ${r.intento})`,
     monto: r.monto_pagado,
     metodo: r.metodo_pago
   }))
+
 }

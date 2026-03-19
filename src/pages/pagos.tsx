@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PlusCircle, UserSearch, Clock, CheckCircle2, Tag, Wallet } from "lucide-react";
 import { buscarEstudiantes, Estudiante } from "../services/estudianteService";
 import { obtenerCarteraEstudiante, CarteraEstudiante, obtenerPagosRecientes, PagoReciente } from "../services/pagoService";
@@ -42,6 +42,8 @@ export default function Pagos() {
     setCartera(null);
     setPagosRecientes([]);
 
+    localStorage.setItem("estudianteSeleccionado", JSON.stringify(est));
+
     try {
       const c = await obtenerCarteraEstudiante(est.id);
       setCartera(c);
@@ -70,6 +72,17 @@ export default function Pagos() {
     setCartera(c);
     await cargarPagosRecientes(estudiante.id);
   }
+
+
+  useEffect(() => {
+    const guardado = localStorage.getItem("estudianteSeleccionado");
+    if (guardado) {
+      const est = JSON.parse(guardado);
+      seleccionarEstudiante(est);
+    }
+  }, []);
+
+
 
   return (
     <>
