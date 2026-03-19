@@ -106,7 +106,7 @@ export default function ModalPago({ estudiante, onClose, onPagoRegistrado }: Pro
           await actualizarDescuento(l.inscripcionId, descuento)
         }
 
-        await registrarPagoModulo( l.inscripcionId, monto, metodo )
+        await registrarPagoModulo(l.inscripcionId, monto, metodo)
       }
 
       if (!haySeleccionado) {
@@ -216,7 +216,14 @@ export default function ModalPago({ estudiante, onClose, onPagoRegistrado }: Pro
                               onChange={() => toggleSeleccionado(l.inscripcionId)}
                             />
                           </td>
-                          <td className="module-name"> {l.moduloCodigo} - {l.moduloNombre} </td>
+                          
+                          <td className="module-name">
+                            {l.moduloCodigo} - {l.moduloNombre}
+                            <div style={{ fontSize: "12px", opacity: 0.7 }}>
+                              {l.intento === 1 ? "Primer intento" : `Intento ${l.intento} • Recursado`}
+                            </div>
+                          </td>
+
                           <td> ${l.precio.toLocaleString("es-CO")} </td>
                           <td>
                             <input
