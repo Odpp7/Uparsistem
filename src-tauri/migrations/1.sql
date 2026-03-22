@@ -81,6 +81,23 @@ CREATE TABLE IF NOT EXISTS pagos (
 
 
 -- ============================================
+-- TABLA: EVENTOS
+-- ============================================
+CREATE TABLE IF NOT EXISTS eventos (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  nombre TEXT NOT NULL,
+  fecha DATE NOT NULL,
+  hora TEXT,
+  descripcion TEXT,
+  categoria TEXT CHECK(categoria IN ('ACADEMICO', 'ADMINISTRATIVO', 'SOCIAL')) DEFAULT 'ACADEMICO',
+  lugar TEXT,
+  activo INTEGER DEFAULT 1,
+  fecha_creacion DATETIME DEFAULT (datetime('now','localtime'))
+);
+
+
+
+-- ============================================
 -- INDICES PARA MEJOR RENDIMIENTO
 -- ============================================
 
