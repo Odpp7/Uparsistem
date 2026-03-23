@@ -20,7 +20,7 @@ export async function obtenerProfesores(): Promise<Profesor[]> {
 export async function crearProfesor(prof: Omit<Profesor, "id" | "fecha_registro" | "activo">) {
   const conn = await getConnection();
   const existe = await conn.select<{ id: number }[]>(`SELECT id FROM profesores WHERE cedula = ?`, [prof.cedula]);
-  if (existe.length > 0) { throw new Error("Ya existe un profesor con esta cédula")}
+  if (existe.length > 0) { throw new Error("CEDULA_DUPLICADA")}
   await conn.execute(
     `INSERT INTO profesores (nombre_completo, cedula, telefono, correo, especialidad, foto) VALUES (?, ?, ?, ?, ?, ?)`,
     [prof.nombre_completo, prof.cedula, prof.telefono, prof.correo || null, prof.especialidad || null, prof.foto || null]

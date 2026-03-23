@@ -15,20 +15,29 @@ export default function ModalProfesor({ onClose, onGuardar }: Props) {
   const [correo, setCorreo] = useState("");
   const [telefono, setTelefono] = useState("");
   const [especialidad, setEspecialidad] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   async function handleGuardar() {
 
+    setError(null);
     const error = validarProfesor({ nombre, cedula, correo, telefono, especialidad });
-    if(error) { alert(error); return }
+    if (error) {
+      setError(error);
+      return
+    }
 
     try {
       await crearProfesor({ nombre_completo: nombre, cedula, correo, telefono, especialidad, foto: null });
       onGuardar();
-    } catch (error) {
-      console.error("Error al guardar profesor:", error);
-      alert((error as Error).message || "Error al guardar el profesor");
+    } catch (err: any) {
+      switch (err.message) {
+        case "CEDULA_DUPLICADA":
+          setError("La cédula ya está registrada.");
+          break;
+        default:
+          setError("Error al guardar el profesor.");
+      }
     }
-
   }
 
   return (
@@ -84,7 +93,7 @@ export default function ModalProfesor({ onClose, onGuardar }: Props) {
 
               <div className="form-group">
                 <label className="form-label">Correo Electrónico</label>
-                
+
                 <input
                   className="form-input-profesor"
                   placeholder="usuario@uparsistem.edu.co"
@@ -117,6 +126,8 @@ export default function ModalProfesor({ onClose, onGuardar }: Props) {
                 />
               </div>
             </div>
+
+            {error && <p className="mae-error">{error}</p>}
           </div>
 
           <div className="modal-footer">

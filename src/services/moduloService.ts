@@ -49,7 +49,7 @@ export async function crearModulo(mod: Omit<Modulo, "id" | "fecha_registro">) {
     const conn = await getConnection();
 
     const existe = await conn.select<{ id: number }[]>(`SELECT id FROM modulos WHERE codigo = ?`, [mod.codigo]);
-    if (existe.length > 0) { throw new Error("Ya existe un módulo con este código")}
+    if (existe.length > 0) { throw new Error("CODIGO_DUPLICADO") }
 
     await conn.execute(
     `INSERT INTO modulos 

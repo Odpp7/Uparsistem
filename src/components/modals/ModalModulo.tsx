@@ -19,8 +19,8 @@ export default function ModalModulo({ onClose, onGuardar }: Props) {
   const [precio, setPrecio] = useState<number>(0);
   const [descripcion, setDescripcion] = useState("");
   const [profesorId, setProfesorId] = useState<number | null>(null);
-
   const [profesores, setProfesores] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => { cargarProfesores() }, []);
 
@@ -31,9 +31,13 @@ export default function ModalModulo({ onClose, onGuardar }: Props) {
 
   async function handleGuardar(e: React.FormEvent) {
     e.preventDefault();
-    
-    const error = validarModulo({ codigo, nombre, duracion, horasTeoricas, horasPracticas, precio});
-    if (error) { alert(error); return }
+
+    setError(null);
+    const error = validarModulo({ codigo, nombre, duracion, horasTeoricas, horasPracticas, precio });
+    if (error) {
+      setError(error)
+      return
+    }
 
     try {
       await crearModulo({
@@ -47,9 +51,16 @@ export default function ModalModulo({ onClose, onGuardar }: Props) {
         profesor_id: profesorId
       });
       if (onGuardar) onGuardar();
-    } catch (error) {
-      alert((error as Error).message || "Error al guardar el módulo");
+    } catch (err: any) {
+      switch (err.message) {
+        case "CODIGO_DUPLICADO":
+          setError("El código del módulo ya está registrado.");
+          break;
+        default:
+          setError("Error al guardar el módulo.");
+      }
     }
+
   }
 
   return (
@@ -68,7 +79,7 @@ export default function ModalModulo({ onClose, onGuardar }: Props) {
           <div className="modal-body">
             <div className="form-grid">
               <div className="form-group">
-                <label className="form-label"> 
+                <label className="form-label">
                   <Fingerprint size={15} className="form-label-icon" />
                   Código del Módulo
                 </label>
@@ -167,7 +178,7 @@ export default function ModalModulo({ onClose, onGuardar }: Props) {
                   >
                     <option value="">Seleccionar docente</option>
                     {profesores.map((p) => (
-                      <option key={p.id} value={p.id}>
+                      <option key={p.id} value={p.id}>|
                         {p.nombre_completo}
                       </option>
                     ))}
@@ -189,9 +200,10 @@ export default function ModalModulo({ onClose, onGuardar }: Props) {
                   onChange={(e) => setDescripcion(e.target.value)}
                 />
               </div>
-
             </div>
           </div>
+
+          {error && <p className="mae-error">{error}</p>}
 
           <div className="modal-footer">
             <button type="button" className="btn-cancel" onClick={onClose}> Cancelar </button>

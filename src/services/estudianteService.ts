@@ -26,7 +26,7 @@ export async function obtenerEstudiantes(): Promise<Estudiante[]> {
 export async function crearEstudiante(est: Omit<Estudiante, "id" | "fecha_registro">) {
     const conn = await getConnection();
     const existe = await conn.select<{ id: number }[]>(`SELECT id FROM estudiantes WHERE cedula = ?`, [est.cedula]);
-    if (existe.length > 0) { throw new Error("Ya existe un estudiante con esta cédula")}
+    if (existe.length > 0) { throw new Error("CEDULA_DUPLICADA")}
     await conn.execute(
     `INSERT INTO estudiantes (nombre_completo, cedula, telefono, correo, foto) VALUES (?, ?, ?, ?, ?)`,
     [est.nombre_completo, est.cedula, est.telefono || null, est.correo || null, est.foto || null]

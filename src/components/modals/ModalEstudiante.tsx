@@ -15,19 +15,30 @@ export default function ModalEstudiante({ onClose, onGuardado }: Props) {
   const [cedula, setCedula] = useState("");
   const [correo, setCorreo] = useState("");
   const [telefono, setTelefono] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   async function handleGuardar() {
 
+    setError(null);
     const error = validarEstudiante({ nombre, cedula, correo, telefono });
-    if(error) { alert(error); return }
+    if (error) {
+      setError(error)
+      return
+    }
 
     try {
       await crearEstudiante({ nombre_completo: nombre, cedula, correo, telefono, foto: null });
       onGuardado();
-    } catch (error) {
-      console.error("Error al guardar estudiante:", error);
-      alert((error as Error).message || "Error al guardar el estudiante");
+    } catch (err: any) {
+      switch (err.message) {
+        case "CEDULA_DUPLICADA":
+          setError("La cédula ya está registrada.");
+          break;
+        default:
+          setError("Error al guardar el estudiante.");
+      }
     }
+
   }
 
   return (
@@ -119,6 +130,8 @@ export default function ModalEstudiante({ onClose, onGuardado }: Props) {
             </div>
 
           </div>
+
+          {error && <p className="mae-error">{error}</p>}
         </div>
 
 
