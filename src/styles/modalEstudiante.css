@@ -114,6 +114,13 @@
   overflow: hidden;
 }
 
+/* imagen dentro del círculo */
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .avatar-camera-btn {
   position: absolute;
   bottom: 0;
@@ -271,3 +278,12 @@
 
 .btn-save:hover  { background: #0e44b8; }
 .btn-save:active { transform: scale(0.97); }
+
+.mae-error {
+  font-size: 13px;
+  color: #dc2626;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 10px 14px;
+}

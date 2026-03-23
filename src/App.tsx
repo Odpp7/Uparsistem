@@ -5,6 +5,7 @@ import Modulos from "./pages/modulos";
 import Profesores from "./pages/profesores";
 import Dashboard from "./pages/dashboard";
 import Pagos from "./pages/pagos";
+import Notas from "./pages/notas";
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
         <Route path="/estudiantes"  element={<Estudiantes />} />
         <Route path="/profesores" element={<Profesores />} />
         <Route path="/modulos" element={<Modulos />} />
+        <Route path="/notas" element={<Notas />} />
         <Route path="/pagos" element={<Pagos />} />
       </Routes>
     </Layout>

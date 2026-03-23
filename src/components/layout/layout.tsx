@@ -8,6 +8,7 @@ const navLinks = [
   { path: "/profesores",  label: "Profesores"  },
   { path: "/modulos",     label: "Modulos"   },
   { path: "/pagos",       label: "Pagos y cartera"     },
+  { path: "/notas",       label: "Notas"     }
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {

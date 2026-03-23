@@ -1,326 +1,304 @@
 import { useState, useEffect } from "react";
-import { X, Search, Wallet, Tag, CreditCard, Landmark, Banknote, CheckCircle, AlertCircle } from "lucide-react";
-import { buscarEstudiantes, Estudiante } from "../../services/estudianteService";
-import { obtenerCarteraEstudiante, CarteraEstudiante } from "../../services/inscripcionService";
-import { registrarPagoGlobal } from "../../services/pagoService";
-import '../../styles/modalPagos.css';
+import { X, Wallet, CheckCircle, AlertCircle, Banknote, CreditCard, Landmark } from "lucide-react";
+import { validarPago } from "../../utils/pagoValidacion";
+import { Estudiante } from "../../services/estudianteService";
+import { obtenerCarteraEstudiante, registrarPagoModulo, actualizarDescuento, CarteraEstudiante } from "../../services/pagoService";
+import "../../styles/modalPagos.css";
 
 interface Props {
-  onClose: () => void;
-  onPagoRegistrado?: () => void;
+  estudiante: Estudiante
+  onClose: () => void
+  onPagoRegistrado?: () => void
 }
 
-export default function ModalPago({ onClose, onPagoRegistrado }: Props) {
-  // Búsqueda de estudiante
-  const [query, setQuery]               = useState("");
-  const [resultados, setResultados]     = useState<Estudiante[]>([]);
-  const [buscando, setBuscando]         = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
+export default function ModalPago({ estudiante, onClose, onPagoRegistrado }: Props) {
 
-  // Estudiante seleccionado
-  const [estudiante, setEstudiante]   = useState<Estudiante | null>(null);
-  const [cartera, setCartera]         = useState<CarteraEstudiante | null>(null);
-  const [cargandoCartera, setCargandoCartera] = useState(false);
+  const [cartera, setCartera] = useState<CarteraEstudiante | null>(null)
+  const [seleccionados, setSeleccionados] = useState<Record<number, boolean>>({})
+  const [descuentos, setDescuentos] = useState<Record<number, string>>({})
+  const [montos, setMontos] = useState<Record<number, string>>({})
+  const [metodo, setMetodo] = useState("Efectivo")
+  const [error, setError] = useState<string | null>(null)
 
-  // Formulario de pago
-  const [monto, setMonto]           = useState("");
-  const [descuento, setDescuento]   = useState("");
-  const [metodo, setMetodo]         = useState("Efectivo");
-  const [observaciones, setObs]     = useState("");
-
-  // Estado
-  const [guardando, setGuardando]   = useState(false);
-  const [error, setError]           = useState<string | null>(null);
-  const [exito, setExito]           = useState(false);
-
-  // Buscar estudiantes con debounce
   useEffect(() => {
-    if (query.trim().length < 2) { setResultados([]); setShowDropdown(false); return; }
-    const t = setTimeout(async () => {
-      setBuscando(true);
-      try {
-        const data = await buscarEstudiantes(query);
-        setResultados(data);
-        setShowDropdown(true);
-      } finally {
-        setBuscando(false);
-      }
-    }, 300);
-    return () => clearTimeout(t);
-  }, [query]);
+    cargarCartera()
+  }, [estudiante])
 
-  async function seleccionarEstudiante(e: Estudiante) {
-    setEstudiante(e);
-    setQuery(e.nombre_completo);
-    setShowDropdown(false);
-    setCartera(null);
-    setMonto("");
-    setDescuento("");
-    setError(null);
+  async function cargarCartera() {
+    const data = await obtenerCarteraEstudiante(estudiante.id)
+    setCartera(data)
+    const sel: Record<number, boolean> = {}
+    const desc: Record<number, string> = {}
+    const mont: Record<number, string> = {}
 
-    setCargandoCartera(true);
-    try {
-      const c = await obtenerCarteraEstudiante(e.id);
-      setCartera(c);
-      // Pre-llenar con el total pendiente
-      setMonto(c.totalDeuda.toFixed(0));
-      console.log("Estudiante seleccionado:", e.id);
+    data.lineas.forEach(l => {
+      sel[l.inscripcionId] = false
+      desc[l.inscripcionId] = String(l.descuento)
+      const precioFinal = l.precio - (l.precio * l.descuento / 100)
+      const pendiente = precioFinal - l.totalPagado
+      mont[l.inscripcionId] = String(pendiente)
+    })
 
-    } finally {
-      setCargandoCartera(false);
-    }
+    setSeleccionados(sel)
+    setDescuentos(desc)
+    setMontos(mont)
   }
 
-  // Cálculos en tiempo real
-  const montoNum     = parseFloat(monto)    || 0;
-  const descuentoNum = parseFloat(descuento) || 0;
-  const totalFinal   = Math.max(0, montoNum - descuentoNum);
-  const saldoTras    = cartera ? Math.max(0, cartera.totalDeuda - totalFinal) : 0;
+
+  function toggleSeleccionado(id: number) {
+    setSeleccionados(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }))
+  }
+
+
+  function handleDescuento(id: number, value: string) {
+    setDescuentos(prev => ({
+      ...prev,
+      [id]: value
+    }))
+  }
+
+
+  function handleMonto(id: number, value: string) {
+    setMontos(prev => ({
+      ...prev,
+      [id]: value
+    }))
+  }
+
+
+  const subtotal = cartera ? cartera.lineas.reduce((acc, l) => {
+    if (!seleccionados[l.inscripcionId]) return acc
+    const monto = parseFloat(montos[l.inscripcionId] || "0")
+    return acc + monto
+  }, 0) : 0
+
 
   async function handleRegistrar() {
-    if (!estudiante || !cartera) return;
-    if (montoNum <= 0) { setError("Ingresa un monto válido."); return; }
-    if (totalFinal > cartera.totalDeuda) {
-      setError(`El pago ($${totalFinal.toLocaleString("es-CO")}) supera la deuda ($${cartera.totalDeuda.toLocaleString("es-CO")}).`);
-      return;
-    }
-    setError(null);
-    setGuardando(true);
+    if (!cartera) return
+    setError(null)
+
     try {
-      await registrarPagoGlobal({
-        estudianteId: estudiante.id,
-        montoTotal: montoNum,
-        descuento: descuentoNum,
-        metodoPago: metodo,
-        observaciones,
-      });
-      setExito(true);
-      // Refrescar cartera
-      const c = await obtenerCarteraEstudiante(estudiante.id);
-      setCartera(c);
-      setMonto("");
-      setDescuento("");
-      onPagoRegistrado?.();
-      setTimeout(() => setExito(false), 3000);
-    } catch (e) {
-      setError("Error al registrar el pago. Intenta de nuevo.");
-    } finally {
-      setGuardando(false);
+      let haySeleccionado = false
+      for (const l of cartera.lineas) {
+
+        if (!seleccionados[l.inscripcionId]) continue
+        haySeleccionado = true
+        const monto = parseFloat(montos[l.inscripcionId] || "0")
+        const descuento = parseFloat(descuentos[l.inscripcionId] || "0")
+        const precioFinal = l.precio - (l.precio * descuento / 100)
+        const saldoPendiente = Math.max(0, precioFinal - l.totalPagado)
+        const errorValidacion = validarPago({
+          inscripcionId: l.inscripcionId,
+          monto,
+          saldoPendiente,
+          descuento
+        })
+
+        if (errorValidacion) {
+          setError(errorValidacion)
+          return
+        }
+
+        if (descuento !== l.descuento) {
+          await actualizarDescuento(l.inscripcionId, descuento)
+        }
+
+        await registrarPagoModulo(l.inscripcionId, monto, metodo)
+      }
+
+      if (!haySeleccionado) {
+        setError("Debe seleccionar al menos un módulo para registrar el pago")
+        return
+      }
+
+      await cargarCartera()
+      onPagoRegistrado?.()
+    }
+    catch (err) {
+      console.error(err)
+      setError("Error al registrar el pago")
     }
   }
+
 
   function handleOverlayClick(e: React.MouseEvent<HTMLDivElement>) {
-    if (e.target === e.currentTarget) onClose();
+    if (e.target === e.currentTarget) {
+      onClose()
+    }
   }
 
+
   return (
-    <div className="modal-overlay" onClick={handleOverlayClick}>
-      <div className="modal-box">
+    <div className="mp-overlay" onClick={handleOverlayClick}>
+      <div className="mp-box">
 
-        {/* HEADER */}
-        <div className="modal-header">
+        <div className="mp-header">
           <div>
-            <h2 className="modal-header-title">Registrar Pago</h2>
-            <p className="modal-header-sub">Uparsistem - University Management</p>
+            <h2 className="mp-header-title">Registrar Pago</h2>
+            <p className="mp-header-sub">
+              <span className="mp-header-total">
+                Total a Pagar: <span>${subtotal.toLocaleString("es-CO")}</span>
+              </span>
+            </p>
           </div>
-          <button className="modal-close" onClick={onClose}><X size={22} /></button>
-        </div>
-
-        {/* BODY */}
-        <div className="modal-body">
-
-          {/* Búsqueda de estudiante */}
-          <div className="form-group" style={{ position: "relative" }}>
-            <label className="form-label">Buscar Estudiante</label>
-            <div className="form-input-wrap">
-              <span className="form-input-icon"><Search size={16} /></span>
-              <input
-                className="form-input"
-                placeholder="Nombre o cédula..."
-                value={query}
-                onChange={(e) => { setQuery(e.target.value); setEstudiante(null); setCartera(null); }}
-                onFocus={() => resultados.length > 0 && setShowDropdown(true)}
-              />
-              {buscando && <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", fontSize: 12, color: "#94a3b8" }}>Buscando...</span>}
-            </div>
-
-            {/* Dropdown resultados */}
-            {showDropdown && resultados.length > 0 && (
-              <div className="search-dropdown">
-                {resultados.map((e) => (
-                  <button key={e.id} className="search-dropdown-item" onClick={() => seleccionarEstudiante(e)}>
-                    <span className="dropdown-name">{e.nombre_completo}</span>
-                    <span className="dropdown-meta">Cédula: {e.cedula}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-            {showDropdown && resultados.length === 0 && !buscando && (
-              <div className="search-dropdown">
-                <p className="dropdown-empty">No se encontraron estudiantes.</p>
-              </div>
-            )}
-          </div>
-
-          {/* Si hay estudiante seleccionado */}
-          {cargandoCartera && <p style={{ color: "#94a3b8", fontSize: 13 }}>Cargando cartera...</p>}
-
-          {cartera && !cargandoCartera && (
-            <>
-              {/* Desglose de módulos */}
-              {cartera.lineas.length === 0 ? (
-                <div className="empty-cartera">
-                  <AlertCircle size={20} />
-                  <span>Este estudiante no tiene módulos inscritos o ya está al día.</span>
-                </div>
-              ) : (
-                <>
-                  {/* Balance cards */}
-                  <div className="balance-grid">
-                    <div className="balance-card">
-                      <div>
-                        <p className="balance-label">Saldo Pendiente</p>
-                        <p className="balance-amount">${cartera.totalDeuda.toLocaleString("es-CO")}</p>
-                      </div>
-                      <div className="balance-icon balance-icon-red"><Wallet size={22} /></div>
-                    </div>
-                    <div className="balance-card">
-                      <div>
-                        <p className="balance-label">Total Pagado</p>
-                        <p className="balance-amount paid">${cartera.totalPagado.toLocaleString("es-CO")}</p>
-                      </div>
-                      <div className="balance-icon balance-icon-green"><CheckCircle size={22} /></div>
-                    </div>
-                  </div>
-
-                  {/* Tabla de módulos */}
-                  <div className="modulos-deuda-table">
-                    <p className="modulos-deuda-title">Detalle por módulo</p>
-                    {cartera.lineas.map((l) => (
-                      <div className="modulo-deuda-row" key={l.inscripcionId}>
-                        <div>
-                          <p className="modulo-deuda-nombre">{l.moduloCodigo} - {l.moduloNombre}</p>
-                          <p className="modulo-deuda-meta">Precio: ${l.precio.toLocaleString("es-CO")} • Pagado: ${l.totalPagado.toLocaleString("es-CO")}</p>
-                        </div>
-                        <div style={{ textAlign: "right" }}>
-                          <p className={`modulo-deuda-saldo ${l.saldoPendiente === 0 ? "saldo-cero" : "saldo-pendiente"}`}>
-                            {l.saldoPendiente === 0 ? "✓ Al día" : `$${l.saldoPendiente.toLocaleString("es-CO")}`}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Solo mostrar formulario si hay deuda */}
-                  {cartera.totalDeuda > 0 && (
-                    <>
-                      {/* Monto y descuento */}
-                      <div className="form-grid">
-                        <div className="form-group">
-                          <label className="form-label">Monto del Pago</label>
-                          <div className="form-input-wrap">
-                            <span className="form-prefix">$</span>
-                            <input
-                              className="form-input with-prefix"
-                              placeholder="0"
-                              type="number"
-                              min="0"
-                              max={cartera.totalDeuda}
-                              value={monto}
-                              onChange={(e) => setMonto(e.target.value)}
-                            />
-                          </div>
-                        </div>
-                        <div className="form-group">
-                          <label className="form-label">Descuento ($)</label>
-                          <div className="form-input-wrap">
-                            <span className="form-input-icon"><Tag size={16} /></span>
-                            <input
-                              className="form-input"
-                              placeholder="0"
-                              type="number"
-                              min="0"
-                              value={descuento}
-                              onChange={(e) => setDescuento(e.target.value)}
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Método de pago */}
-                      <div className="form-group">
-                        <label className="form-label">Método de Pago</label>
-                        <div className="method-grid">
-                          {[
-                            { label: "Efectivo",      icon: <Banknote size={22} />,  value: "Efectivo"      },
-                            { label: "Tarjeta",       icon: <CreditCard size={22} />, value: "Tarjeta"      },
-                            { label: "Transferencia", icon: <Landmark size={22} />,  value: "Transferencia" },
-                          ].map((m) => (
-                            <label key={m.value} className={`method-option ${metodo === m.value ? "selected" : ""}`}>
-                              <input type="radio" name="metodo" checked={metodo === m.value} onChange={() => setMetodo(m.value)} />
-                              <div className="method-card">
-                                <span className="method-icon">{m.icon}</span>
-                                <span className="method-label">{m.label}</span>
-                              </div>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Resumen */}
-                      <div className="summary-box">
-                        <div className="summary-row">
-                          <span>Monto ingresado</span>
-                          <span>${montoNum.toLocaleString("es-CO")}</span>
-                        </div>
-                        <div className="summary-row discount">
-                          <span>Descuento aplicado</span>
-                          <span>- ${descuentoNum.toLocaleString("es-CO")}</span>
-                        </div>
-                        <hr className="summary-divider" />
-                        <div className="summary-total">
-                          <span className="summary-total-label">Total a registrar</span>
-                          <span className="summary-total-value">${totalFinal.toLocaleString("es-CO")}</span>
-                        </div>
-                        <div className="summary-row" style={{ marginTop: 6 }}>
-                          <span style={{ color: "#94a3b8", fontSize: 12 }}>Saldo tras el pago</span>
-                          <span style={{ fontSize: 12, color: saldoTras === 0 ? "#15803d" : "#c2410c", fontWeight: 600 }}>
-                            ${saldoTras.toLocaleString("es-CO")}
-                          </span>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </>
-              )}
-
-              {error && (
-                <p style={{ color: "#ef4444", fontSize: 13, marginTop: 8, display: "flex", gap: 6, alignItems: "center" }}>
-                  <AlertCircle size={14} /> {error}
-                </p>
-              )}
-              {exito && (
-                <p style={{ color: "#15803d", fontSize: 13, marginTop: 8, display: "flex", gap: 6, alignItems: "center" }}>
-                  <CheckCircle size={14} /> Pago registrado exitosamente.
-                </p>
-              )}
-            </>
-          )}
-        </div>
-
-        {/* FOOTER */}
-        <div className="modal-footer">
-          <button className="btn-cancel" onClick={onClose}>Cancelar</button>
-          <button
-            className="btn-save"
-            onClick={handleRegistrar}
-            disabled={!estudiante || !cartera || cartera.totalDeuda === 0 || guardando || totalFinal <= 0}
-          >
-            <CheckCircle size={16} />
-            {guardando ? "Registrando..." : "Registrar Pago"}
+          <button className="mp-close" onClick={onClose}>
+            <X size={20} />
           </button>
         </div>
+
+        <div className="mp-body">
+          {cartera && (
+            <div className="mp-balance-grid">
+
+              <div className="mp-balance-card">
+                <div className="mp-balance-icon amber">
+                  <Wallet size={22} />
+                </div>
+                <div>
+                  <p className="mp-balance-label">Saldo Pendiente</p>
+                  <p className="mp-balance-amount">
+                    ${cartera.totalDeuda.toLocaleString("es-CO")}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mp-balance-card">
+                <div className="mp-balance-icon green">
+                  <CheckCircle size={22} />
+                </div>
+                <div>
+                  <p className="mp-balance-label">Total Pagado</p>
+                  <p className="mp-balance-amount">
+                    ${cartera.totalPagado.toLocaleString("es-CO")}
+                  </p>
+                </div>
+              </div>
+
+            </div>
+          )}
+
+          {cartera && cartera.lineas.length > 0 && (
+
+            <div>
+              <p className="mp-section-label">
+                Seleccionar Módulos a Pagar
+              </p>
+              <div className="mp-table-wrap">
+                <table className="mp-table">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Módulo</th>
+                      <th>Costo</th>
+                      <th>Desc %</th>
+                      <th>Monto a Pagar</th>
+                      <th>Saldo</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+
+                    {cartera.lineas.map(l => {
+                      const isSel = seleccionados[l.inscripcionId]
+                      const descuentoActual = parseFloat(descuentos[l.inscripcionId] || "0")
+                      const precioFinal = l.precio - (l.precio * descuentoActual / 100)
+                      const pendiente = Math.max(0, precioFinal - l.totalPagado)
+
+                      return (
+                        <tr key={l.inscripcionId}>
+                          <td>
+                            <input
+                              type="checkbox"
+                              checked={isSel}
+                              disabled={pendiente === 0}
+                              onChange={() => toggleSeleccionado(l.inscripcionId)}
+                            />
+                          </td>
+                          
+                          <td className="module-name">
+                            {l.moduloCodigo} - {l.moduloNombre}
+                            <div style={{ fontSize: "12px", opacity: 0.7 }}>
+                              {l.intento === 1 ? "Primer intento" : `Intento ${l.intento} • Recursado`}
+                            </div>
+                          </td>
+
+                          <td> ${l.precio.toLocaleString("es-CO")} </td>
+                          <td>
+                            <input
+                              className="mp-table-input"
+                              type="number"
+                              value={descuentos[l.inscripcionId]}
+                              disabled={!isSel}
+                              onChange={(e) => handleDescuento(l.inscripcionId, e.target.value)}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              className="mp-table-input"
+                              type="number"
+                              value={montos[l.inscripcionId]}
+                              disabled={!isSel}
+                              onChange={(e) => handleMonto(l.inscripcionId, e.target.value)}
+                            />
+                          </td>
+                          <td className="net-price"> ${pendiente.toLocaleString("es-CO")} </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          <div>
+            <p className="mp-section-label">
+              Método de Pago
+            </p>
+            <div className="mp-method-grid">
+
+              {[
+                { label: "Efectivo", icon: <Banknote size={22} />, value: "Efectivo" },
+                { label: "Tarjeta", icon: <CreditCard size={22} />, value: "Tarjeta" },
+                { label: "Transferencia", icon: <Landmark size={22} />, value: "Transferencia" }
+              ].map(m => (
+
+                <label key={m.value} className="mp-method-option">
+
+                  <input type="radio" name="metodo" checked={metodo === m.value} onChange={() => setMetodo(m.value)} />
+
+                  <div className="mp-method-card">
+                    <span className="mp-method-icon">{m.icon}</span>
+                    <span className="mp-method-label">{m.label}</span>
+                  </div>
+
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {error && (
+            <p className="mp-alert error">
+              <AlertCircle size={14} /> {error}
+            </p>
+          )}
+
+        </div>
+
+        <div className="mp-footer">
+          <button className="mp-btn-cancel" onClick={onClose}>
+            Cancelar
+          </button>
+
+          <button className="mp-btn-register" onClick={handleRegistrar} disabled={subtotal <= 0}>
+            <CheckCircle size={18} />
+            Registrar Pago
+          </button>
+        </div>
+
       </div>
     </div>
-  );
+  )
 }

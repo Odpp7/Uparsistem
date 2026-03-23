@@ -351,3 +351,75 @@
 
 .notif-text   { font-size: 14px; font-weight: 600; color: #0f172a; }
 .notif-time   { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+
+
+.bar-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+
+/* TOOLTIP OCULTO */
+.bar-tooltip {
+  position: absolute;
+  bottom: 100%;
+  margin-bottom: 6px;
+  background: #0f172a;
+  color: #fff;
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(5px);
+  transition: all 0.2s ease;
+  pointer-events: none;
+}
+
+/* FLECHITA */
+.bar-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: #0f172a transparent transparent transparent;
+}
+
+/* MOSTRAR AL HOVER */
+.bar-wrapper:hover .bar-tooltip {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.event-badge {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 999px;
+}
+
+/* HOY */
+.event-badge.hoy {
+  background: #d1fae5;
+  color: #059669;
+}
+
+/* PROXIMO */
+.event-badge.proximo {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+/* PASADO */
+.event-badge.pasado {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
