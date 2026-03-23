@@ -1,7 +1,7 @@
 # ===============================
 # Logs
 # ===============================
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -10,7 +10,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 # ===============================
-# Node
+# Node / Frontend
 # ===============================
 node_modules/
 dist/
@@ -29,7 +29,7 @@ dist-ssr/
 # ===============================
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
@@ -39,31 +39,33 @@ dist-ssr/
 *.swp
 
 # ===============================
-# Tauri
+# Tauri / Rust
 # ===============================
 src-tauri/target/
-src-tauri/target/*
 src-tauri/.cargo/
 src-tauri/.rustup/
-
-# Archivos de compilación Rust
+# No subir las keys privadas
+src-tauri/keys/
+# Archivos de compilación Rust temporales
 **/*.rs.bk
 
 # ===============================
-# Build outputs
+# Build outputs / releases
 # ===============================
 build/
 release/
 debug/
+*.msi
+*.exe
+*.app
+*.dmg
 
 # ===============================
-# SQLite
+# SQLite / Bases de datos locales
 # ===============================
 *.db
 *.db-shm
 *.db-wal
-
-# Si usas una DB local de desarrollo
 database.db
 
 # ===============================
@@ -73,13 +75,13 @@ Thumbs.db
 .DS_Store
 
 # ===============================
-# Testing
+# Testing / coverage
 # ===============================
 coverage/
 
 # ===============================
-# Cache
+# Cache / bundlers
 # ===============================
-.cache
-.parcel-cache
-.vite
+.cache/
+.parcel-cache/
+.vite/

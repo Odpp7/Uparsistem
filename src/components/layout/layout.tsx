@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { GraduationCap, Search, Bell } from "lucide-react"
+import { GraduationCap } from "lucide-react"
 import '../../styles/layout.css';
 
 const navLinks = [
@@ -24,7 +24,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <div className="navbar-logo-icon">
               <GraduationCap className="navbar-logo-icon-svg" />
             </div>
-            <span className="navbar-logo-text">Uparsistem</span>
+            <span className="navbar-logo-text">Instituto Ebenezer</span>
           </a>
 
           <nav className="navbar-nav">
@@ -37,17 +37,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </Link>
             ))}
           </nav>
-        </div>
-
-        <div className="navbar-right">
-          <div className="search-wrapper">
-            <Search className="search-icon" size={20} />
-            <input className="search-input" placeholder="Global search..." />
-          </div>
-          <button className="notif-btn">
-            <Bell size={20} />
-          </button>
-          <div className="avatar">HP</div>
         </div>
       </header>
 
@@ -62,7 +51,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <div className="footer-brand-icon">
               <GraduationCap size={15} />
             </div>
-            <p className="footer-copy">© 2026 Uparsistem Educational Management Platform</p>
+            <p className="footer-copy">Manejo de Plataforma Educacional</p>
           </div>
       </footer>
 

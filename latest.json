@@ -1,0 +1,11 @@
+{
+  "version": "0.1.2",
+  "notes": "Segunda versión con auto update",
+  "pub_date": "2026-03-23T00:00:00Z",
+  "platforms": {
+    "windows-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRWWl4WFg4cjNqWXdGaUxYdlBsV2FjLzlRYkxtUXdmMVNsdTZENlE1VjR3RjZkZVN6YWRUVDRnQkZFQXlWTnd2MkowWkdyYnltTUtsY2x6ZGRZTVhiY09hVWZRakRhOUFnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzc0MzAyMzYyCWZpbGU6dXBhcnNpc3RlbV8wLjEuMl94NjRfZW4tVVMubXNpClRXcG96QzNnZVJUdmdKT0J2QWRFVEEzOVdpNHozZit2bDJJdkkzcTZqSzJXQlhUVm80RzQyZk9tRk1PbTV6UGIySFFZemxmM2l6SGpwYnZiQU13V0N3PT0K",
+      "url": "https://github.com/Odpp7/uparsistem/releases/download/v0.1.2/uparsistem_0.1.2_x64_en-US.msi"
+    }
+  }
+}
