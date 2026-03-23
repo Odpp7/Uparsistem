@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Pencil, Trash2, Search, SlidersHorizontal, UserPlus, ChevronRight, ChevronLeft } from "lucide-react";
+import { Pencil, Trash2, Search, UserPlus, ChevronRight, ChevronLeft } from "lucide-react";
 import { eliminarProfesor, obtenerProfesores, Profesor } from "../services/profesorService";
 import EditProfesor from "../components/EditComponent/EditProfesor";
 import ModalProfesor from "../components/modals/ModalProfesor";
