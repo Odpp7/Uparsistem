@@ -50,7 +50,7 @@ export default function Dashboard() {
     <>
       <div className="dash-header">
         <div>
-          <p className="dash-title">Dashboard Overview</p>
+          <p className="dash-title">Dashboard</p>
           <p className="dash-subtitle">Bienvenido de vuelta!!</p>
         </div>
         <button className="btn-primary" onClick={() => setIsModalOpen(true)}>

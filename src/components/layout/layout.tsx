@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { GraduationCap } from "lucide-react"
+import InstitutoEbenezerLogo from "../../assets/InstitutoEbenezer.jpeg";
 import '../../styles/layout.css';
 
 const navLinks = [
@@ -22,7 +23,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
           <a href="/" className="navbar-logo">
             <div className="navbar-logo-icon">
-              <GraduationCap className="navbar-logo-icon-svg" />
+              <img style={{ width: "48px", height: "48px", borderRadius: "50%"}} src={InstitutoEbenezerLogo} alt="Instituto Ebenezer" />
             </div>
             <span className="navbar-logo-text">Instituto Ebenezer</span>
           </a>
@@ -51,7 +52,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <div className="footer-brand-icon">
               <GraduationCap size={15} />
             </div>
-            <p className="footer-copy">Manejo de Plataforma Educacional</p>
+            <p className="footer-copy">Manejo de Plataforma Educacional Ebenezer</p>
           </div>
       </footer>
 

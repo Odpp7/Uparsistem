@@ -20,7 +20,11 @@ fn main() {
         .build(),
     )
 
+    // ✅ updater
     .plugin(tauri_plugin_updater::Builder::new().build())
+
+    // 🔥 FALTA ESTE 👇
+    .plugin(tauri_plugin_process::init())
 
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

@@ -1,11 +1,11 @@
 {
-  "version": "0.1.2",
-  "notes": "Segunda versión con auto update",
-  "pub_date": "2026-03-23T00:00:00Z",
+  "version": "0.1.8",
+  "notes": "Actualización automática funcionando",
+  "pub_date": "2026-03-25T00:00:00Z",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRWWl4WFg4cjNqWXdGaUxYdlBsV2FjLzlRYkxtUXdmMVNsdTZENlE1VjR3RjZkZVN6YWRUVDRnQkZFQXlWTnd2MkowWkdyYnltTUtsY2x6ZGRZTVhiY09hVWZRakRhOUFnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzc0MzAyMzYyCWZpbGU6dXBhcnNpc3RlbV8wLjEuMl94NjRfZW4tVVMubXNpClRXcG96QzNnZVJUdmdKT0J2QWRFVEEzOVdpNHozZit2bDJJdkkzcTZqSzJXQlhUVm80RzQyZk9tRk1PbTV6UGIySFFZemxmM2l6SGpwYnZiQU13V0N3PT0K",
-      "url": "https://github.com/Odpp7/uparsistem/releases/download/v0.1.2/uparsistem_0.1.2_x64_en-US.msi"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRVlZJOHZGbXh2bHdnY2UvcmNhSUlWTmEzNTBNQzhXdEFmUlZLc09DUlRIcUlFb0U4aVEvM3FYUGl5S0pLWW4zVUI0ZFhnNE9yMnBRcklwKzRsb0wxVHBkN1VUTFVNdHdNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzc0NDcyODcwCWZpbGU6SW5zdGl0dXRvLUViZW5lemVyXzAuMS44X3g2NF9lbi1VUy5tc2kKRUFzdkJ5Njhtczk4TkErZzEwazVnR1V3THYwMXZuYTE0VjdlUW8xT055R3hDQ0NrcStJMGtGNmNZVkdhWXlzK1h2VzFuTmNyZkp0SVpoSHFWMzhQRFE9PQo=",
+      "url": "https://github.com/Odpp7/Uparsistem/releases/download/v.0.1.8/Instituto-Ebenezer_0.1.8_x64_en-US.msi"
     }
   }
 }
