@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
     UserSearch, TrendingUp, BarChart2, BadgeCheck, BookMarked, CheckCircle, XCircle, RefreshCw, Download, ArrowLeft,
-    Info, AlertTriangle, Save, Lock,
+    Info, AlertTriangle, Save, Lock
 } from "lucide-react";
 import { buscarEstudiantes, Estudiante } from "../services/estudianteService";
-import { obtenerModulosEstudiante, guardarNota, ModuloNota, recursarModulo } from "../services/notaService";
+import { obtenerModulosEstudiante, guardarNota, ModuloNota, recursarModulo, obtenerFotoEstudiante } from "../services/notaService";
 import { validarNota } from "../utils/notaValidacion";
+import { generarInformePDF } from "../utils/notaPDF";
+import { Toast } from "primereact/toast";
 import "../styles/notas.css";
 
 function initials(name: string) {
@@ -20,11 +22,12 @@ export default function Notas() {
     const [estudiante, setEstudiante] = useState<Estudiante | null>(null);
     const [modulos, setModulos] = useState<ModuloNota[]>([]);
     const [drafts, setDrafts] = useState<Record<number, string>>({});
+    const toast = useRef<Toast>(null);
 
 
     const pasados = modulos.filter(m => m.nota !== null && m.nota >= 3)
     const reprobados = modulos.filter(m => m.nota !== null && m.nota < 3)
-    const totalHoras = pasados.reduce((acc, m) => acc + m.horas, 0)
+    const totalCreditos = pasados.reduce((acc, m) => acc + m.creditos, 0)
 
     const gpa = modulos.length ? (modulos.reduce((acc, m) => acc + (m.nota ?? 0), 0) / modulos.length).toFixed(2) : "—"
 
@@ -134,9 +137,31 @@ export default function Notas() {
         }
     }
 
+    async function handleGenerarInforme() {
+        const foto = await obtenerFotoEstudiante(estudiante!.id)
+        try {
+            await generarInformePDF(estudiante!, modulos, foto)
+            toast.current?.show({
+                severity: "success",
+                summary: "Informe de notas Generado",
+                detail: "El informe fue guardado en la carpeta Descargas.",
+                life: 3000,
+            })
+        } catch (error) {
+            toast.current?.show({
+                severity: "error",
+                summary: "Error al generar",
+                detail: "No se pudo generar el informe.",
+                life: 3000,
+            });
+        }
+    }
+
 
     return (
         <>
+            <Toast ref={toast} />
+
             <div className="page-header">
                 <div>
                     <h1 className="page-title">Historial Académico</h1>
@@ -144,7 +169,9 @@ export default function Notas() {
                 </div>
 
                 {estudiante && (
-                    <button className="btn-outline-primary"> <Download size={16} /> Descargar Informe </button>
+                    <button className="btn-outline-primary" onClick={handleGenerarInforme} >
+                        <Download size={16} /> Descargar Informe
+                    </button>
                 )}
             </div>
 
@@ -222,10 +249,10 @@ export default function Notas() {
 
                         <div className="stat-card">
                             <div className="stat-card-top">
-                                <span className="stat-label">Horas Obtenidas</span>
+                                <span className="stat-label">Creditos Obtenidos</span>
                                 <span className="stat-icon"><BadgeCheck size={22} /></span>
                             </div>
-                            <p className="stat-value"> {totalHoras} </p>
+                            <p className="stat-value"> {totalCreditos} </p>
                         </div>
 
                         <div className="stat-card">
@@ -267,7 +294,7 @@ export default function Notas() {
 
                                                 <td>
                                                     <p className="td-module-name">{m.moduloNombre}</p>
-                                                    <p className="td-module-code">{m.horas} Horas • Intento {m.intento}</p>
+                                                    <p className="td-module-code">{m.creditos} Créditos • Intento {m.intento}</p>
                                                 </td>
 
                                                 <td className="td-date"> {m.fechaInscripcion} </td>

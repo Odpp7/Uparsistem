@@ -6,6 +6,7 @@ export interface ModuloNota {
   moduloCodigo: string
   moduloNombre: string
   horas: number
+  creditos: number
   fechaInscripcion: string
   nota: number | null
   bloqueada: boolean
@@ -19,25 +20,27 @@ export async function obtenerModulosEstudiante(estudianteId: number): Promise<Mo
   const conn = await getConnection()
 
   const rows = await conn.select<any[]>(`
-    SELECT
-      i.id AS inscripcion_id,
-      m.id AS modulo_id,
-      m.codigo AS modulo_codigo,
-      m.nombre AS modulo_nombre,
-      i.intento,
+  SELECT
+    i.id AS inscripcion_id,
+    m.id AS modulo_id,
+    m.codigo AS modulo_codigo,
+    m.nombre AS modulo_nombre,
+    m.creditos,
+    i.intento,
 
-      (m.horas_teoricas + m.horas_practicas) AS horas,
+    (m.horas_aula + m.horas_independiente) AS horas,
 
-      i.fecha_inscripcion,
-      i.nota,
-      i.nota_bloqueada,
-      i.estado
+    i.fecha_inscripcion,
+    i.nota,
+    i.nota_bloqueada,
+    i.estado
 
-    FROM inscripciones i
-    JOIN modulos m ON i.modulo_id = m.id
-    WHERE i.estudiante_id = ?
-    ORDER BY i.fecha_inscripcion ASC
-  `,[estudianteId])
+  FROM inscripciones i
+  JOIN modulos m ON i.modulo_id = m.id
+  WHERE i.estudiante_id = ?
+  ORDER BY i.fecha_inscripcion ASC
+`, [estudianteId])
+
 
 
   return rows.map(r => ({
@@ -46,6 +49,7 @@ export async function obtenerModulosEstudiante(estudianteId: number): Promise<Mo
     moduloCodigo: r.modulo_codigo,
     moduloNombre: r.modulo_nombre,
     horas: r.horas,
+    creditos: r.creditos,
     fechaInscripcion: r.fecha_inscripcion,
     nota: r.nota,
     bloqueada: r.nota_bloqueada === 1,
@@ -56,7 +60,7 @@ export async function obtenerModulosEstudiante(estudianteId: number): Promise<Mo
 
 
 
-export async function guardarNota(inscripcionId: number, nota: number){
+export async function guardarNota(inscripcionId: number, nota: number) {
   const conn = await getConnection()
 
   const fecha = new Date().toISOString().split("T")[0]
@@ -71,13 +75,13 @@ export async function guardarNota(inscripcionId: number, nota: number){
       nota_bloqueada = 1,
       estado = ?
     WHERE id = ?
-  `,[nota, fecha, estado, inscripcionId])
+  `, [nota, fecha, estado, inscripcionId])
 
 }
 
 
 
-export async function recursarModulo(estudianteId: number, moduloId: number){
+export async function recursarModulo(estudianteId: number, moduloId: number) {
 
   const conn = await getConnection()
   const fecha = new Date().toISOString().split("T")[0]
@@ -86,7 +90,7 @@ export async function recursarModulo(estudianteId: number, moduloId: number){
     SELECT MAX(intento) as max_intento
     FROM inscripciones
     WHERE estudiante_id = ? AND modulo_id = ?
-  `,[estudianteId, moduloId])
+  `, [estudianteId, moduloId])
 
   const intentoActual = result[0]?.max_intento || 0
 
@@ -101,7 +105,7 @@ export async function recursarModulo(estudianteId: number, moduloId: number){
     WHERE estudiante_id = ?
     AND modulo_id = ?
     AND intento = ?
-  `,[estudianteId, moduloId, intentoActual])
+  `, [estudianteId, moduloId, intentoActual])
 
   const nuevoIntento = intentoActual + 1
 
@@ -109,7 +113,20 @@ export async function recursarModulo(estudianteId: number, moduloId: number){
     INSERT INTO inscripciones
     (estudiante_id, modulo_id, intento, fecha_inscripcion, estado)
     VALUES (?, ?, ?, ?, 'ACTIVO')
-  `,[estudianteId, moduloId, nuevoIntento, fecha])
+  `, [estudianteId, moduloId, nuevoIntento, fecha])
+}
+
+
+
+export async function obtenerFotoEstudiante(estudianteId: number): Promise<string | null> {
+  const conn = await getConnection()
+  const rows = await conn.select<any[]>(`
+    SELECT foto_perfil
+    FROM fotos_personas
+    WHERE persona_tipo = 'ESTUDIANTE' AND persona_id = ?
+  `, [estudianteId])
+
+  return rows[0]?.foto_perfil ?? null
 }
 
 

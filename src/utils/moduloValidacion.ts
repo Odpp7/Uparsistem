@@ -2,63 +2,85 @@ export interface ModuloForm {
   codigo: string
   nombre: string
   duracion: string
-  horasTeoricas: number
-  horasPracticas: number
+  horas_aula: number
+  horas_independiente: number
+  creditos: number
   precio: number
+  programa_id: number | null
+  ciclo_id: number | null
 }
 
 export function validarModulo(data: ModuloForm): string | null {
 
-  const codigoRegex = /^[A-Z]{3,5}-\d{3,5}$/
+  const codigoRegex = /^[A-Za-z0-9][A-Za-z0-9_-]{1,14}$/
   const nombreRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s]{3,100}$/
-  const duracionRegex = /^[0-9]{1,3}\s?(mes(es)?|hora(s)?|semana(s)?)$/i
 
   if (!data.codigo.trim()) {
     return "El código del módulo es obligatorio"
   }
 
-  if (!codigoRegex.test(data.codigo)) {
-    return "Formato de código inválido. Ej: MOD-001"
+  if (data.codigo.trim().length < 2) {
+    return "El código debe tener al menos 2 caracteres"
+  }
+
+  if (!codigoRegex.test(data.codigo.trim())) {
+    return "Código inválido. Solo letras, números, guion (-) o guion bajo (_). Ej: FM-101, FIM1, EB001"
   }
 
   if (!data.nombre.trim()) {
     return "El nombre del módulo es obligatorio"
   }
 
-  if (!nombreRegex.test(data.nombre)) {
-    return "Nombre del módulo inválido"
+  if (!nombreRegex.test(data.nombre.trim())) {
+    return "Nombre del módulo inválido. Solo letras, números y espacios simples"
   }
 
   if (data.nombre.includes("  ")) {
-    return "El nombre del módulo contiene espacios inválidos"
+    return "El nombre del módulo contiene espacios consecutivos"
   }
 
   if (!data.duracion.trim()) {
     return "La duración es obligatoria"
   }
 
-  if (!duracionRegex.test(data.duracion)) {
-    return "Duración inválida. Ej: 3 meses, 120 horas"
+  if (!data.programa_id) {
+    return "Debes seleccionar un programa académico"
   }
 
-  if (data.horasTeoricas < 0) {
-    return "Las horas teóricas no pueden ser negativas"
+  if (!data.ciclo_id) {
+    return "Debes seleccionar un ciclo"
   }
 
-  if (data.horasTeoricas > 1000) {
-    return "Las horas teóricas son demasiado altas"
+  if (!data.creditos || data.creditos <= 0) {
+    return "Los créditos son obligatorios y deben ser mayor a 0"
   }
 
-  if (data.horasPracticas < 0) {
-    return "Las horas prácticas no pueden ser negativas"
+  if (!Number.isInteger(data.creditos)) {
+    return "Los créditos deben ser un número entero"
   }
 
-  if (data.horasPracticas > 1000) {
-    return "Las horas prácticas son demasiado altas"
+  if (data.creditos > 20) {
+    return "El número de créditos es demasiado alto"
   }
 
-  if (data.horasTeoricas === 0 && data.horasPracticas === 0) {
-    return "El módulo debe tener al menos horas teóricas o prácticas"
+  if (data.horas_aula < 0) {
+    return "Las horas en aula no pueden ser negativas"
+  }
+
+  if (data.horas_aula > 2000) {
+    return "Las horas en aula son demasiado altas"
+  }
+
+  if (data.horas_independiente < 0) {
+    return "Las horas de trabajo independiente no pueden ser negativas"
+  }
+
+  if (data.horas_independiente > 2000) {
+    return "Las horas de trabajo independiente son demasiado altas"
+  }
+
+  if (data.horas_aula === 0 && data.horas_independiente === 0) {
+    return "El módulo debe tener al menos horas en aula o horas independientes"
   }
 
   if (data.precio <= 0) {

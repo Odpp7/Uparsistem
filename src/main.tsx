@@ -3,13 +3,15 @@ import ReactDOM from "react-dom/client";
 import { HashRouter } from "react-router-dom";
 import App from "./App";
 import { check } from "@tauri-apps/plugin-updater";
-import { relaunch } from "@tauri-apps/plugin-process";
+import { relaunch } from "@tauri-apps/plugin-process";      
+import 'primereact/resources/themes/lara-light-blue/theme.css';
+import 'primereact/resources/primereact.min.css';                          
+
 
 function Root() {
   const [updateInfo, setUpdateInfo] = useState<any>(null);
   const [downloading, setDownloading] = useState(false);
 
-  // 🔍 Buscar actualización al iniciar
   useEffect(() => {
     async function checkUpdate() {
       try {
@@ -26,7 +28,6 @@ function Root() {
     checkUpdate();
   }, []);
 
-  // 🚀 Ejecutar actualización
   const handleUpdate = async () => {
     try {
       setDownloading(true);
@@ -39,12 +40,10 @@ function Root() {
 
   return (
     <>
-      {/* 🌐 Tu app */}
       <HashRouter>
         <App />
       </HashRouter>
 
-      {/* 🔥 Modal de actualización */}
       {updateInfo && (
         <div style={styles.overlay}>
           <div style={styles.modal}>

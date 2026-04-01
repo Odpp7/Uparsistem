@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
-import { PlusCircle, UserSearch, Clock, CheckCircle2, Tag, Wallet } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { PlusCircle, UserSearch, Clock, CheckCircle2, Tag, Wallet, FileDown } from "lucide-react";
 import { buscarEstudiantes, Estudiante } from "../services/estudianteService";
 import { obtenerCarteraEstudiante, CarteraEstudiante, obtenerPagosRecientes, PagoReciente } from "../services/pagoService";
+import { generarReciboCarteraPDF } from "../utils/reciboCarteraPDF";
+import { Toast } from 'primereact/toast';
 import ModalPago from "../components/modals/ModalPagos";
 import "../styles/pagos.css";
 
@@ -13,6 +15,8 @@ export default function Pagos() {
   const [estudiante, setEstudiante] = useState<Estudiante | null>(null);
   const [cartera, setCartera] = useState<CarteraEstudiante | null>(null);
   const [pagosRecientes, setPagosRecientes] = useState<PagoReciente[]>([]);
+  const toast = useRef<Toast>(null);
+
 
 
   async function searchEstudiante(e: React.ChangeEvent<HTMLInputElement>) {
@@ -73,6 +77,27 @@ export default function Pagos() {
     await cargarPagosRecientes(estudiante.id);
   }
 
+  async function handleGenerarRecibo() {
+    try {
+      await generarReciboCarteraPDF(estudiante!, cartera!);
+
+      toast.current?.show({
+        severity: "success",
+        summary: "Recibo generado",
+        detail: "El recibo fue guardado en la carpeta Descargas.",
+        life: 3000,
+      })
+
+    } catch (error) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Error al generar",
+        detail: "No se pudo generar el recibo.",
+        life: 3000,
+      });
+    }
+  }
+
 
   useEffect(() => {
     const guardado = localStorage.getItem("estudianteSeleccionado");
@@ -86,6 +111,8 @@ export default function Pagos() {
 
   return (
     <>
+      <Toast ref={toast} position="top-right" />
+
       <div className="page-header">
         <div>
           <h1 className="page-title">Cartera y Pagos</h1>
@@ -189,6 +216,13 @@ export default function Pagos() {
             <div>
               <div className="section-header">
                 <span className="section-title">Transacciones Recientes</span>
+                <button
+                  className="btn-outline-primary"
+                  onClick={handleGenerarRecibo}
+                  disabled={!estudiante || !cartera}
+                >
+                  <FileDown size={18} /> Generar Recibo
+                </button>
               </div>
               <div className="table-container">
                 <div className="table-scroll">

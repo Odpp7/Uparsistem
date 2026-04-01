@@ -2,7 +2,7 @@
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Instituto-Ebenezer",
   "version": "0.1.8",
-  "identifier": "com.pc.uparsistem",
+  "identifier": "Instituto-Ebenezer",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",

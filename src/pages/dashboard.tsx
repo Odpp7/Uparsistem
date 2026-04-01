@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
-import { obtenerResumenDashboard, obtenerNotificaciones, obtenerPagosPorMes } from "../services/dashboardService";
+import { useEffect, useRef, useState } from "react";
+import { obtenerResumenDashboard, obtenerNotificaciones, obtenerPagosPorMes, obtenerCarteraGeneral } from "../services/dashboardService";
 import { Users, GraduationCap, BookOpen, Plus, BanknoteArrowUp } from "lucide-react";
 import { obtenerEventos } from "../services/eventService";
+import { generarCarteraPDF } from "../utils/informeCarteraPDF";
+import { Toast } from "primereact/toast";
 import ModalAddEvent from "../components/modals/ModalAddEvent";
 import ModalVerEventos from "../components/modals/ModalVerEventos";
 import '../styles/dashboard.css';
@@ -13,6 +15,7 @@ export default function Dashboard() {
   const [pagosMes, setPagosMes] = useState<any[]>([]);
   const [notificaciones, setNotificaciones] = useState<any[]>([]);
   const [eventos, setEventos] = useState<any[]>([]);
+  const toast = useRef<Toast>(null);
 
 
   useEffect(() => {
@@ -45,9 +48,43 @@ export default function Dashboard() {
     minimumFractionDigits: 0,
   });
 
+  async function handleGenerarCartera() {
+    try {
+      const reporte = await obtenerCarteraGeneral();
+
+      if (reporte.lineas.length === 0) {
+        toast.current?.show({
+          severity: "info",
+          summary: "Sin deudas",
+          detail: "No hay estudiantes con saldo pendiente.",
+          life: 3000,
+        });
+        return;
+      }
+
+      generarCarteraPDF(reporte);
+
+      toast.current?.show({
+        severity: "success",
+        summary: "Reporte generado",
+        detail: `Se exportaron ${reporte.totalEstudiantesConDeuda} estudiante(s) con deuda.`,
+        life: 3000,
+      });
+    } catch (error) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "No se pudo generar el reporte de cartera.",
+        life: 3000,
+      });
+    }
+  }
+
 
   return (
     <>
+      <Toast ref={toast} position="top-right" />
+
       <div className="dash-header">
         <div>
           <p className="dash-title">Dashboard</p>
@@ -172,7 +209,10 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <p className="notif-section-title">Notificaciones Recientes</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+        <p className="notif-section-title">Notificaciones Recientes</p>
+        <button className="btn-outline-primary" onClick={handleGenerarCartera}>Generar Reporte de Cartera</button>
+      </div>
       <div className="notif-list">
         {notificaciones.length > 0 ? (
           notificaciones.slice(0, 4).map((n, i) => (
